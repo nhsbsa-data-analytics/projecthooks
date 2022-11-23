@@ -1,0 +1,19 @@
+nps_groups <- c(
+  "Detractor" = "Detractors",
+  "Passive" = "Passives",
+  "Promoter" = "Promoters"
+)
+
+nes_responses <- c(
+  "Extremely difficult"        = "Extremely difficult",
+  "Very difficult"             = "Very difficult",
+  "Fairly difficult"           = "Fairly difficult",
+  "Neither easy nor difficult" = "Neither easy nor difficult",
+  "Fairly easy"                = "Fairly easy",
+  "Very easy"                  = "Very easy",
+  "Extremely easy"             = "Extremely easy"
+)
+
+{levels}
+
+regions <- names(region_responses)

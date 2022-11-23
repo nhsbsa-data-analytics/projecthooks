@@ -1,0 +1,7 @@
+^projecthooks\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^\.lintr$
+^\.pre-commit-config\.yaml$
+^codecov\.yml$
+^\.github$

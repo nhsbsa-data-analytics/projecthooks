@@ -1,0 +1,7 @@
+{page_file_name}_page <- div(
+  class = 'ui {page_file_name} page one column grid container dashboard {visibility}',
+  style = 'padding-top: 1em !important;',
+  div(class = 'sixteen wide column', h1('{page_menu_name}')),
+
+  htmlOutput("{page_file_name}trigger")
+)
