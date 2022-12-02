@@ -14,7 +14,7 @@ You can install the development version of projecthooks from [GitHub](https://gi
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MarkMc1089/projecthooks")
+devtools::install_github("nhsbsa-data-analytics/projecthooks")
 ```
 
 ## Example
