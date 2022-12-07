@@ -9,6 +9,7 @@ Imports:
     dplyr,
     fs,
     glue,
+    magrittr,
     purrr,
     R.utils,
     rlang,

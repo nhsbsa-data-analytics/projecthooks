@@ -47,7 +47,10 @@ create_app_r <- function(app_title, backup_dir = NULL,
   app_r <- "app.R"
   check_overwrite(app_r, backup_dir, overwrite)
 
-  app_r_lines <- readLines("templates/app_template.txt")
+  app_r_lines <- readLines(
+    system.file("templates", "app_template.txt", package = "projecthooks")
+    # "templates/app_template.txt"
+  )
   app_r_lines <- glue::glue_collapse(app_r_lines, sep = "\n")
 
   writeLines(app_r_lines, app_r)
@@ -70,11 +73,15 @@ create_app_r <- function(app_title, backup_dir = NULL,
 #' @examples
 create_ui_r <- function(main_title, subtitle, backup_dir = NULL,
                         overwrite = FALSE, open = FALSE) {
+  ui_dir <- fs::dir_create("ui")
   ui_r <- "ui/ui.R"
 
   check_overwrite(ui_r, backup_dir, overwrite)
 
-  ui_r_lines <- readLines("templates/ui/ui_template.txt")
+  ui_r_lines <- readLines(
+    system.file("templates", "ui", "ui_template.txt", package = "projecthooks")
+    # "templates/ui/ui_template.txt"
+  )
   ui_r_lines <- glue::glue_collapse(ui_r_lines, sep = "\n")
 
   writeLines(ui_r_lines, ui_r)
@@ -188,14 +195,19 @@ file_remove_line <- function(.file, .match = NA, open = FALSE) {
 add_page <- function(page_name, page_menu_name = page_name, visibility = "hidden",
                      backup_dirs = NULL, overwrite = FALSE, open = FALSE) {
   page_file_name <- snakecase::to_snake_case(page_name)
+  page_dir <- fs::dir_create(file.path("ui", "pages"))
   page_r <- glue::glue("ui/pages/{page_file_name}.R")
+  server_dir <- fs::dir_create("server")
   server_r <- glue::glue("server/{page_file_name}_outputs.R")
 
   check_overwrite(
     c(page_r, server_r), backup_dirs, overwrite
   )
 
-  page_r_temp <- readLines("templates/ui/ui_page_template.txt")
+  page_r_temp <- readLines(
+    system.file("templates", "ui", "ui_page_template.txt", package = "projecthooks")
+    # "templates/ui/ui_page_template.txt"
+  )
   page_r_temp <- glue::glue(glue::glue_collapse(page_r_temp, sep = "\n"))
 
   file.create(page_r)
@@ -398,7 +410,10 @@ create_output <- function(output_name, render_func, output_func, args) {
     args <- paste(args_to_combine, collapse = ", ")
   }
 
-  output_temp <- readLines("templates/server/output_template.txt")
+  output_temp <- readLines(
+    system.file("templates", "server", "output_template.txt", package = "projecthooks")
+    # "templates/server/output_template.txt"
+  )
   if (output_func == "{CUSTOM_FUNC}") {
     comments <- rep("# ", length(output_temp))
     output_temp <- paste0(comments, output_temp)
@@ -444,14 +459,23 @@ add_output <- function(page, output_name, render_func, output_func, args) {
 add_ui_element <- function(page, label, output_name, ui_func, section_num,
                            use_comment_group, use_aspect_radio) {
   if (use_comment_group) {
-    element_temp <- readLines("templates/ui/ui_comment_group_template.txt")
+    element_temp <- readLines(
+      system.file("templates", "ui", "ui_comment_group_template.txt", package = "projecthooks")
+      # "templates/ui/ui_comment_group_template.txt"
+    )
     group_select_id <- glue::glue("{output_name}_group")
   } else if (use_aspect_radio) {
-    element_temp <- readLines("templates/ui/ui_stacked_vertical_radio_template.txt")
+    element_temp <- readLines(
+      system.file("templates", "ui", "ui_stacked_vertical_radio_template.txt", package = "projecthooks")
+      # "templates/ui/ui_stacked_vertical_radio_template.txt"
+    )
     radio_select_id <- glue::glue("{output_name}_radio")
     radio_select_choices <- glue::glue("{output_name}_choices")
   } else {
-    element_temp <- readLines("templates/ui/ui_element_template.txt")
+    element_temp <- readLines(
+      system.file("templates", "ui", "ui_element_template.txt", package = "projecthooks")
+      # "templates/ui/ui_element_template.txt"
+    )
   }
 
   if (ui_func == "CUSTOM_OUTPUT") {
@@ -495,7 +519,10 @@ add_ui <- function(page, section, label, output_name, ui_func, section_num,
 
   if (is.na(match(target, lines))) {
     # section does not exist, so add
-    section_temp <- readLines("templates/ui/ui_section_template.txt")
+    section_temp <- readLines(
+      system.file("templates", "ui", "ui_section_template.txt", package = "projecthooks")
+      # "templates/ui/ui_section_template.txt"
+    )
     new_section <- glue::glue(glue::glue_collapse(section_temp, sep = "\n"), .trim = FALSE)
     target <- glue::glue("  htmlOutput(\"{page_file_name}trigger\")")
 
@@ -544,7 +571,7 @@ summarise_data <- function(.data, .data_meta) {
     suppress_warnings(
       {
         print(skimr::skim(.data))
-        skim_data <- skimr::skim_with(numeric = sfl(hist = NULL))(.data)
+        # skim_data <- skimr::skim_with(numeric = skimr::sfl(hist = NULL))(.data)
       },
       endsWith,
       "value(s) of \"\" that have been converted to \"empty\"."
@@ -552,13 +579,13 @@ summarise_data <- function(.data, .data_meta) {
     Sys.sleep(0.01)
   })
 
-  cat("", sep = "\n")
-
-  level_cols <- .data_meta %>%
-    dplyr::filter(startsWith(transform_to, "tidy_levels"))
-
-  print(summary(.data %>% dplyr::select(dplyr::all_of(level_cols$rename_to))))
-  skim_data
+  # cat("", sep = "\n")
+  #
+  # level_cols <- .data_meta %>%
+  #   dplyr::filter(startsWith(transform_to, "tidy_levels"))
+  #
+  # print(summary(.data %>% dplyr::select(dplyr::all_of(level_cols$rename_to))))
+  # skim_data
 }
 
 
@@ -655,11 +682,15 @@ add_levels <- function(data, levels_meta, backup_dir = NULL,
                        overwrite = FALSE, open = FALSE) {
   levels <- create_levels(data, levels_meta)
 
+  global_dir <- fs::dir_create("global")
   levels_r <- glue::glue("global/levels.R")
 
   check_overwrite(levels_r, backup_dir, overwrite)
 
-  levels_r_temp <- readLines("templates/global/levels_template.txt")
+  levels_r_temp <- readLines(
+    system.file("templates", "global", "levels_template.txt", package = "projecthooks")
+    # "templates/global/levels_template.txt"
+  )
   levels_r_temp <- glue::glue(glue::glue_collapse(levels_r_temp, sep = "\n"))
 
   file.create(levels_r)
