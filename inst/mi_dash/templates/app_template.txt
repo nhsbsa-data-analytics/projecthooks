@@ -50,19 +50,52 @@ ui <- function(app_title) {{
     HTML('<meta name="viewport" content="width=1024">'),
     title = app_title,
     tags$head(
-      tags$link(rel = "stylesheet", href = "semantic/semantic.min.css"),
-      tags$link(rel = "stylesheet", href = "fonts.css"),
       tags$link(rel = "stylesheet", href = "style.css"),
-      tags$link(rel = "stylesheet", href = "dataTables.min.css"),
-      tags$link(rel = "stylesheet", href = "calendar.min.css"),
-      tags$link(rel = "stylesheet", href = "dataTables.semanticui.min.css"),
-      tags$script(type = "text/javascript", src = "datatables.min.js"),
-      tags$script(type = "text/javascript", src = "moment-with-locales.min.js"),
-      tags$script(type = "text/javascript", src = "calendar.min.js"),
-      tags$script(type = "text/javascript", src = "semantic/semantic.min.js"),
+      tags$link(
+        rel = "stylesheet",
+        href = "https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css"
+      ),
+      tags$link(
+        rel = "stylesheet",
+        href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css"
+      ),
+      tags$link(
+        rel = "stylesheet",
+        href = "https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css"
+      ),
+      tags$link(
+        rel = "stylesheet",
+        href = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui-calendar/0.0.8/calendar.min.css"
+      ),
+      tags$link(
+        rel = "stylesheet",
+        href = "https://cdn.datatables.net/1.10.17/css/dataTables.semanticui.min.css"
+      ),
+      tags$script(
+        type = "text/javascript",
+        src = "https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/js/jquery.dataTables.min.js"
+      ),
+      tags$script(
+        type = "text/javascript",
+        src = "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"
+      ),
+      tags$script(
+        type = "text/javascript",
+        src = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui-calendar/0.0.8/calendar.min.js"
+      ),
+      tags$script(
+        type = "text/javascript",
+        src = "https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.js"
+      ),
+      tags$script(
+        type = "text/javascript",
+        src = "https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"
+      ),
       tags$script(type = "text/javascript", src = "https://unpkg.com/@popperjs/core@2"),
       tags$script(type = "text/javascript", src = "https://unpkg.com/tippy.js@6"),
-      tags$script("tippy.setDefaultProps({{theme: 'nhs-blue', allowHTML: true, zIndex: 100000}});")
+      tags$script(
+        "tippy.setDefaultProps({theme: 'nhs-blue', allowHTML: true, zIndex: 100000});"
+      )
     ),
     div(style = 'min-height: 100vh',
       suppressDependencies('datatable'),

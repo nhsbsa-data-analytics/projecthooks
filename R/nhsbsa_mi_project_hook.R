@@ -24,13 +24,16 @@ nhsbsa_mi_project_hook <- function(path, package_name, ...) {
   fs::file_delete(".Rbuildignore")
   fs::file_delete(".gitignore")
   fs::file_delete("NAMESPACE")
-  # Don't delete the DESCRIPTION or .Rproj to prevent error message (tho message
-  # can be safely ignored)
-  # fs::file_delete("DESCRIPTION") # Exclude Linting
-  # fs::file_delete(paste0(package_name, ".Rproj")) # Exclude Linting
+  fs::file_delete("DESCRIPTION") # Exclude Linting
 
   # Copy all contents of base_project dir into new project folder
   R.utils::copyDirectory(
-    system.file("mi_dash", "templates", package = "projecthooks"), "."
+    system.file("mi_dash", "global", package = "projecthooks"), "global"
+  )
+  R.utils::copyDirectory(
+    system.file("mi_dash", "server", package = "projecthooks"), "server"
+  )
+  R.utils::copyDirectory(
+    system.file("mi_dash", "www", package = "projecthooks"), "www"
   )
 }

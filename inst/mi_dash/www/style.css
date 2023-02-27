@@ -1,0 +1,344 @@
+
+body, .button, .header {
+  font-family: 'Avenir' !important;
+  background: #f5f6fa !important;
+}
+
+html {
+  font-family: 'Avenir' !important;
+}
+
+.ui.statistic>.value,
+.ui.statistic>.label{
+
+font-family: 'Avenir' !important;
+
+}
+
+.ui.segments .segment {
+  border-radius: 0 !important;
+}
+
+.ui.segments .top.segment {
+/*rgb(37,110,255)*/
+  border-bottom-color: #f5f6fa !important;
+  border-bottom-style: solid !important;
+  border-bottom-width: 2px !important;
+}
+
+.dataTables_wrapper .sixteen.wide.column{
+  padding:0 !important;
+}
+
+h2, h3, h4, h5 {
+  margin: 0 !important;
+}
+
+.home .ui.segment h2:first-child, .home .ui.segment h3:first-child {
+  margin-bottom: 1rem !important;
+}
+
+.normal {
+
+margin: 0 !important;
+
+}
+
+.ui.statistic>.value {
+  font-weight: 700 !important;
+}
+
+body {
+  background: #f5f6fa
+}
+
+h1 {
+  font-size: 3rem !important;
+}
+
+.navmenu {
+  border: none !important;
+  margin: 0 !important;
+  height: 50px;
+}
+
+/*.dashboard .ui.segment{
+
+  height: 100%;
+
+}*/
+
+.ui.dropdown .menu>.item .check.circle.icon {
+    width: auto !important;
+    float: right !important;
+    margin: 0 0 0 1em !important;
+}
+
+.leftmenu, .rightmenu{
+box-shadow: none !important;
+border-color: #00B4DB;
+border-bottom-width: 0px !important;
+border-bottom-color: #2d6de2 !important;
+border-bottom-style: solid !important;
+border-radius:0 !important;
+}
+
+tspan {
+  font-family: 'Avenir' !important;
+  stroke-width:0px !important;
+}
+
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5 {
+  font-family: 'Avenir' !important;
+}
+
+svg.highcharts-root {
+  font-family: 'Avenir' !important;
+  font-weight: 700 !important;
+}
+
+h1:last-child, h2:last-child, h3:last-child, h4:last-child, h5:last-child {
+
+margin-top: calc(2rem - 0.142857em);
+margin-bottom: 1rem;
+
+}
+
+
+
+table {
+  width: 100%;
+}
+
+.grid {
+  margin:0 !important;
+}
+
+.dashboard {
+  padding-left: 5% !important;
+  padding-right: 5% !important;
+}
+
+table .right.cell {
+  text-align: right !important;
+}
+
+table .center.cell {
+  text-align: center !important;
+}
+
+.nps.celled.table {
+  overflow: hidden !important;
+}
+
+.title {
+  font-family:'Avenir' !important;
+}
+
+.ui.menu {
+  font-family: 'Avenir' !important;
+}
+
+
+
+.right.ribbon.label {
+
+box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+
+}
+
+.performance.header {
+  text-align: center;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+.sponsor.header {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.service.header {
+  text-align: center;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+/*.ui.segments{
+      border: none !important;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+      margin: 1rem 0.5rem !important;
+      border-radius: 0 !important;
+}*/
+
+
+
+.ui.segment, .ui.segments, .ui.celled.table {
+  /*border: none !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  margin: 1rem 0.5rem !important;
+  border-radius: 0 !important;*/
+
+  border-radius: 4px !important;
+  border: none !important;
+  /*box-shadow: 0 0px 20px rgba(0,0,0,0.05), 0 2px 2px rgba(0,0,0,0.05) !important;*/
+  box-shadow: 0 0 0 !important;
+}
+
+.steps {
+
+  border-radius: 8px !important;
+  border: none !important;
+  box-shadow: 0 0px 20px rgba(0,0,0,0.05), 0 2px 2px rgba(0,0,0,0.05) !important;
+
+  /*border: none !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;*/
+
+}
+
+.column {
+  padding-top: 0 !important;
+}
+
+h2 + p {
+  margin-top: -1rem !important;
+}
+
+text.highcharts-title {
+  font-size: 14px !important;
+  color: white !important;
+}
+
+
+.ui.menu .item:before{
+  background:rgba(0,0,0,0); !important;
+}
+
+
+#main_menu{
+border: none !important;
+margin: 0 !important;
+box-shadow: 0 0px 1px 2px rgba(34,36,38,.05) !important;
+border-color: #00B4DB;
+border-bottom-width: 0px !important;
+border-bottom-color: #2d6de2 !important;
+border-bottom-style: solid !important;
+border-radius:0 !important;
+}
+
+.hidden {
+  display:none !important;
+}
+
+.item.top:before {
+  display: none!important;
+}
+
+
+
+.ui.menu a.item:hover,
+.ui.vertical.menu .item .menu a.item:hover,
+.sideheader:hover {
+
+  background: rgba(37,110,255,.05);
+  color: rgba(37,110,255,.75);
+
+}
+
+
+.highcharts-container, .highcharts-container svg { width: 100% !important; }
+
+/*.accordion .content {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  padding-bottom: 14px !important;
+}*/
+
+
+body {
+    color: rgba(0,0,0,1)!important;
+}
+
+table {
+    color: black!important;
+}
+
+.ui.table thead th {
+    background: #005EB8!important;
+    color: rgba(1, 1, 1, 1)!important;
+}
+
+.bttn-pill.bttn-default {
+    background: #fff;
+    color: #005EB8!important;
+}
+
+a {
+    color: #005EB8!important;
+    text-decoration: none;
+}
+
+.dataTables_length {
+    display: none;
+}
+
+.shiny-input-container:not(.shiny-input-container-inline) {
+    width: 300px;
+    max-width: 100%;
+    padding: 5px;
+}
+
+.input-daterange input:first-child {
+    border-radius: 0 4px 4px 0;
+}
+
+.input-daterange input:last-child {
+    border-radius: 0 4px 4px 0;
+}
+
+.tippy-box[data-theme~='nhs-blue'] {
+  background-color: #005EB8;
+  color: #FFFFFF;
+}
+
+.tippy-box[data-theme~='nhs-blue-sm'] {
+  background-color: #005EB8;
+  color: #FFFFFF;
+  font-size: 8pt;
+}
+
+.tippy-box[data-placement^='top'] > .tippy-arrow::before {
+  border-top-color: #005EB8;
+}
+.tippy-box[data-placement^='bottom'] > .tippy-arrow::before {
+  border-bottom-color: #005EB8;
+}
+.tippy-box[data-placement^='left'] > .tippy-arrow::before {
+  border-left-color: #005EB8;
+}
+.tippy-box[data-placement^='right'] > .tippy-arrow::before {
+  border-right-color: #005EB8;
+}
+
+.fa {
+  font-family: "Font Awesome 5 Free" !important;
+}
+
+.fa-xmark {
+  opacity: 1 !important;
+}
+
+.fa-xmark:before {
+  content: '\f00d' !important;
+  font-weight: 900;
+}
+
+.fa-check:before {
+  content: '\f00c' !important;
+  font-weight: 900;
+}
+
+.pretty input:not(:checked)~.state.p-success label:after {
+  background-color: #DA291C;
+}
