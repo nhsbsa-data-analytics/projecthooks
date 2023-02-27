@@ -26,7 +26,15 @@ nhsbsa_mi_project_hook <- function(path, package_name, ...) {
   fs::file_delete("NAMESPACE")
   fs::file_delete("DESCRIPTION") # Exclude Linting
 
-  # Copy all contents of base_project dir into new project folder
+  fs::file_copy(
+    system.file("mi_dash", "make_dashboard.R", package = "projecthooks"), "."
+  )
+
+  fs::dir_create("data")
+
+  R.utils::copyDirectory(
+    system.file("mi_dash", "data-raw", package = "projecthooks"), "data-raw"
+  )
   R.utils::copyDirectory(
     system.file("mi_dash", "global", package = "projecthooks"), "global"
   )

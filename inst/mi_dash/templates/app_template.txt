@@ -106,7 +106,7 @@ ui <- function(app_title) {{
       ),
       ui_footer,
       tags$script("tippy('.info-tippy');"),
-      tags$script(src = 'jqu.js')
+      tags$script(src = 'custom.js')
     ),
     HTML('</html>')
   )
