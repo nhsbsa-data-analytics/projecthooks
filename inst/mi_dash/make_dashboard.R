@@ -51,13 +51,11 @@ transforms <- list(
     lvls <- trimws(gsub(regexes$final_brackets, "", x, perl = TRUE))
     lvls <- if_else(startsWith(lvls, "Prefer") | lvls == "", "Undisclosed", lvls)
     replace_na(lvls, "Undisclosed")
-    # as.factor(x)
   },
   tidy_levels_keep_blanks = function(x) {
     lvls <- trimws(gsub(regexes$final_brackets, "", x, perl = TRUE))
     lvls <- if_else(startsWith(lvls, "Prefer"), "Undisclosed", lvls)
     replace_na(lvls, "Undisclosed")
-    # as.factor(x)
   }
 )
 
@@ -186,7 +184,7 @@ try(
 choices_meta <- data_meta %>%
   filter(
     output_func == "stacked_vertical" &
-      nchar(arg7) > 0
+      nchar(arg8) > 0
   ) %>%
   select(rename_to, output_name)
 
@@ -198,14 +196,13 @@ try(
 )
 
 ## Create app.R -----------------------------------------------------------
-try(
-  create_app_r(app_type, app_title, backup_dir, overwrite = overwrite, open = open)
-)
+try(create_app_r(app_type, app_title, backup_dir, overwrite = overwrite, open = open))
 
 ## Create ui.R ------------------------------------------------------------
 try(
   create_ui_r(
-    app_type, main_title, subtitle, ui_backup_dir, overwrite = overwrite, open = open
+    app_type, main_title, subtitle, ui_backup_dir,
+    overwrite = overwrite, open = open
   )
 )
 
@@ -230,8 +227,6 @@ try({
       select(page, output_name, output_type, output_func, starts_with("arg"))
   ) %>%
     filter(nchar(page) > 0) %>%
-    # Do I need to do this? What if an arg is actually ""?
-    # mutate(across(everything(), ~ na_if(.,""))) %>%
     mutate(
       page = glue("{to_snake_case(page)}_outputs.R"),
       render_func = glue(
@@ -241,26 +236,33 @@ try({
       output_type = NULL,
       arg3 = case_when(
         output_func == "group_table" &
-          nchar(arg3) > 0 ~ glue("\"{output_name}_group\""),
+          nchar(arg3) > 0 ~ glue("input${output_name}_group"),
+        output_func %in% c(
+          "stacked_horizontal", "pie"
+        ) ~ glue("{output_name}_responses"),
         TRUE ~ arg3
       ),
-      arg7 = case_when(
+      arg4 = case_when(
+        output_func %in% c(
+          "stacked_vertical", "horizontal_bar"
+        ) ~ glue("{output_name}_responses"),
+        TRUE ~ arg4
+      ),
+      arg8 = case_when(
         output_func == "stacked_vertical" &
-          nchar(arg7) > 0 ~ glue("\"{output_name}_radio\""),
-        TRUE ~ arg7
+          nchar(arg8) > 0 ~ glue("input${output_name}_radio"),
+        TRUE ~ arg8
       )
     ) %>%
     unite(args, starts_with("arg"), sep = ", ") %>%
-    mutate(app_type = app_type) %>%
-    select(app_type, everything())
+    mutate(app_type = app_type)
 
   pwalk(output_meta, add_output)
 
   ## Create ui elements------------------------------------------------------
-  # TODO: can element_num be removed?
   ui_meta <- unique(
     data_meta %>%
-      select(page, section, label, output_type, output_name, output_func, arg3, arg7)
+      select(page, section, label, output_type, output_name, output_func, arg3, arg8)
   ) %>%
     filter(nchar(page) > 0) %>%
     mutate(
@@ -270,7 +272,6 @@ try({
       ),
       output_type = NULL
     ) %>%
-    # TODO: Not happy handling this way; will be better once using modules with golem
     mutate(
       use_comment_group = case_when(
         output_func == "group_table" &
@@ -281,22 +282,21 @@ try({
     mutate(
       use_aspect_radio = case_when(
         output_func == "stacked_vertical" &
-          nchar(arg7) > 0 ~ TRUE,
+          nchar(arg8) > 0 ~ TRUE,
         TRUE ~ FALSE
       )
     ) %>%
     group_by(page, section) %>%
-    mutate(element_num = sequence(n())) %>%
-    ungroup() %>%
-    group_by(page, element_num) %>%
     mutate(
-      section_num = sequence((n()))
+      element_num = row_number(),
+      section_num = if_else(element_num == 1, 1, 0)
     ) %>%
+    group_by(page) %>%
+    mutate(section_num = cumsum(section_num)) %>%
     ungroup() %>%
     select(-element_num) %>%
     mutate(app_type = app_type) %>%
-    # select(app_type, everything())
-    select(-c(output_func, arg3, arg7))
+    select(-c(output_func, arg3, arg8))
 
   pwalk(ui_meta, add_ui)
 })
