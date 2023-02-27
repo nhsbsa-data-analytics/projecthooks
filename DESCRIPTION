@@ -6,7 +6,10 @@ Authors@R:
 Description: Provides functions to use as project hooks for {golem} package.
 License: MIT + file LICENSE
 Imports: 
-    magrittr
+    fs,
+    magrittr,
+    R.utils,
+    withr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
