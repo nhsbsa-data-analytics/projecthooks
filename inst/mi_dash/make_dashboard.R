@@ -8,9 +8,10 @@ library(skimr)
 library(fs)
 library(rlang)
 library(mi.r.utils)
+library(projecthooks)
 
 
-open <- TRUE
+open <- FALSE
 overwrite <- TRUE
 
 # Create backup folders ---------------------------------------------------
@@ -173,25 +174,40 @@ levels_meta <- data_meta %>%
   filter(startsWith(transform_to, "tidy_levels"))
 
 try(
-  data %>%
-    select(levels_meta %>% pull(rename_to)) %>%
-    add_levels(levels_meta, global_backup_dir, overwrite = overwrite, open = open)
+  add_levels(
+    app_type,
+    data %>% select(levels_meta %>% pull(rename_to)),
+    levels_meta, global_backup_dir,
+    overwrite = overwrite, open = open
+  )
 )
 
 ## Create aspect radio choices --------------------------------------------
 choices_meta <- data_meta %>%
-  filter(arg7 == TRUE) %>%
+  filter(
+    output_func == "stacked_vertical" &
+      nchar(arg7) > 0
+  ) %>%
   select(rename_to, output_name)
 
 try(
-  add_choices(choices_meta, global_backup_dir, overwrite = overwrite, open = open)
+  add_choices(
+    choices_meta, global_backup_dir,
+    overwrite = overwrite, open = open
+  )
 )
 
 ## Create app.R -----------------------------------------------------------
-try(create_app_r(app_type, app_title, backup_dir, overwrite = overwrite, open = open))
+try(
+  create_app_r(app_type, app_title, backup_dir, overwrite = overwrite, open = open)
+)
 
 ## Create ui.R ------------------------------------------------------------
-try(create_ui_r(app_type, main_title, subtitle, ui_backup_dir, overwrite = overwrite, open = open))
+try(
+  create_ui_r(
+    app_type, main_title, subtitle, ui_backup_dir, overwrite = overwrite, open = open
+  )
+)
 
 ## Create pages -----------------------------------------------------------
 pages <- app_meta %>%
@@ -202,6 +218,7 @@ pages <- app_meta %>%
 
 try({
   add_pages(
+    app_type,
     pages %>% pull(value),
     backup_dirs = c(pages_backup_dir, server_backup_dir),
     overwrite = overwrite, open = open
@@ -223,25 +240,27 @@ try({
       ),
       output_type = NULL,
       arg3 = case_when(
-        output_func == "comment_table" &
-          arg3 == TRUE ~ glue("\"{output_name}_group\""),
+        output_func == "group_table" &
+          nchar(arg3) > 0 ~ glue("\"{output_name}_group\""),
         TRUE ~ arg3
       ),
       arg7 = case_when(
         output_func == "stacked_vertical" &
-          arg7 == TRUE ~ glue("\"{output_name}_radio\""),
+          nchar(arg7) > 0 ~ glue("\"{output_name}_radio\""),
         TRUE ~ arg7
       )
     ) %>%
-    unite(args, starts_with("arg"), sep = ", ")
+    unite(args, starts_with("arg"), sep = ", ") %>%
+    mutate(app_type = app_type) %>%
+    select(app_type, everything())
 
-  pmap(output_meta, add_output)
+  pwalk(output_meta, add_output)
 
   ## Create ui elements------------------------------------------------------
   # TODO: can element_num be removed?
   ui_meta <- unique(
     data_meta %>%
-      select(page, section, label, output_type, output_name, arg3, arg7)
+      select(page, section, label, output_type, output_name, output_func, arg3, arg7)
   ) %>%
     filter(nchar(page) > 0) %>%
     mutate(
@@ -252,17 +271,18 @@ try({
       output_type = NULL
     ) %>%
     # TODO: Not happy handling this way; will be better once using modules with golem
-    rename(use_comment_group = arg3, use_aspect_radio = arg7) %>%
     mutate(
       use_comment_group = case_when(
-        is.na(use_comment_group) | use_comment_group != TRUE ~ FALSE,
-        TRUE ~ TRUE
+        output_func == "group_table" &
+          nchar(arg3) > 0 ~ TRUE,
+        TRUE ~ FALSE
       )
     ) %>%
     mutate(
       use_aspect_radio = case_when(
-        is.na(use_aspect_radio) | use_aspect_radio != TRUE ~ FALSE,
-        TRUE ~ TRUE
+        output_func == "stacked_vertical" &
+          nchar(arg7) > 0 ~ TRUE,
+        TRUE ~ FALSE
       )
     ) %>%
     group_by(page, section) %>%
@@ -273,9 +293,12 @@ try({
       section_num = sequence((n()))
     ) %>%
     ungroup() %>%
-    select(-element_num)
+    select(-element_num) %>%
+    mutate(app_type = app_type) %>%
+    # select(app_type, everything())
+    select(-c(output_func, arg3, arg7))
 
-  pmap(ui_meta, add_ui)
+  pwalk(ui_meta, add_ui)
 })
 
 # Data summary ------------------------------------------------------------
