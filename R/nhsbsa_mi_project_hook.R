@@ -11,22 +11,26 @@
 #' @param ... Never used
 #'
 #' @export
-nhsbsa_mi_project_hook <- function(path, package_name, test_arg, ...) {
-  # Delete all the files...
-  # browser()
-  # fs::dir_delete("dev")
-  # fs::dir_delete("inst")
-  # fs::dir_delete("man")
-  # fs::dir_delete("R")
-  # fs::file_delete(".Rbuildignore")
-  # fs::file_delete(".gitignore")
-  # fs::file_delete("NAMESPACE")
-  # Don't delete the DESCRIPTION or .Rproj to prevent error message (tho message
-  # can be safely ignored)
-  # fs::file_delete("DESCRIPTION") # Exclude Linting
-  # fs::file_delete(paste0(package_name, ".Rproj")) # Exclude Linting
+nhsbsa_mi_project_hook <- function(path, package_name, ...) {
+  # Delete all files except .Rproj
+  fs::dir_delete("dev")
+  fs::dir_delete("inst")
+  fs::dir_delete("man")
+  fs::dir_delete("R")
+  fs::file_delete(".Rbuildignore")
+  fs::file_delete(".gitignore")
+  fs::file_delete("NAMESPACE")
+  fs::file_delete("DESCRIPTION")
 
-  # Copy all contents of base_project dir into new project folder
-  # R.utils::copyDirectory(system.file("templates", package = "projecthooks"), ".")
-  write(test_arg, "test_file.txt")
+  fs::dir_create("data")
+  fs::dir_create("ui")
+
+  # Copy standard files into new project folder
+  R.utils::copyDirectory(
+    system.file(
+      "projects", "mi_dash", "standard_files",
+      package = "projecthooks"
+    ),
+    "."
+  )
 }
