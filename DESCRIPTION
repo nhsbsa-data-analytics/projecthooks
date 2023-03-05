@@ -6,17 +6,9 @@ Authors@R:
 Description: Provides functions to use as project hooks for {golem} package.
 License: MIT + file LICENSE
 Imports: 
-    dplyr,
     fs,
-    glue,
     magrittr,
-    purrr,
     R.utils,
-    rlang,
-    rstudioapi,
-    skimr,
-    snakecase,
-    stringr,
     withr
 Suggests: 
     covr,

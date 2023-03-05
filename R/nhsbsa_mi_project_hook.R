@@ -10,6 +10,10 @@
 #' @param package_name Name of the package (aka the app or dashboard)
 #' @param ... Never used
 #'
+#' @import R.utils
+#' @import fs
+#' @import withr
+#'
 #' @export
 nhsbsa_mi_project_hook <- function(path, package_name, ...) {
   # Delete all files except .Rproj

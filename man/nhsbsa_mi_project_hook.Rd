@@ -4,7 +4,7 @@
 \alias{nhsbsa_mi_project_hook}
 \title{Project hook to create a base dashboard app for the NHSBSA MI team}
 \usage{
-nhsbsa_mi_project_hook(path, package_name, test_arg, ...)
+nhsbsa_mi_project_hook(path, package_name, ...)
 }
 \arguments{
 \item{path}{Path to the package}
