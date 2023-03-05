@@ -16,7 +16,7 @@
 #'
 #' @export
 nhsbsa_mi_project_hook <- function(path, package_name, ...) {
-  # Delete all the files...
+  # Delete all files except .Rproj
   fs::dir_delete("dev")
   fs::dir_delete("inst")
   fs::dir_delete("man")
@@ -24,24 +24,17 @@ nhsbsa_mi_project_hook <- function(path, package_name, ...) {
   fs::file_delete(".Rbuildignore")
   fs::file_delete(".gitignore")
   fs::file_delete("NAMESPACE")
-  fs::file_delete("DESCRIPTION") # Exclude Linting
-
-  fs::file_copy(
-    system.file("mi_dash", "make_dashboard.R", package = "projecthooks"), "."
-  )
+  fs::file_delete("DESCRIPTION")
 
   fs::dir_create("data")
+  fs::dir_create("ui")
 
+  # Copy standard files into new project folder
   R.utils::copyDirectory(
-    system.file("mi_dash", "data-raw", package = "projecthooks"), "data-raw"
-  )
-  R.utils::copyDirectory(
-    system.file("mi_dash", "global", package = "projecthooks"), "global"
-  )
-  R.utils::copyDirectory(
-    system.file("mi_dash", "server", package = "projecthooks"), "server"
-  )
-  R.utils::copyDirectory(
-    system.file("mi_dash", "www", package = "projecthooks"), "www"
+    system.file(
+      "projects", "mi_dash", "standard_files",
+      package = "projecthooks"
+    ),
+    "."
   )
 }

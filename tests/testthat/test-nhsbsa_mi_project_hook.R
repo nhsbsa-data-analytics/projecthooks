@@ -24,6 +24,7 @@ test_that("nhsbsa_mi_project_hook works", {
   expect_equal(file.exists("NAMESPACE"), FALSE)
   expect_equal(file.exists("make_dashboard.R"), TRUE)
   expect_equal(file.exists("data"), TRUE)
+  expect_equal(file.exists("ui"), TRUE)
   expect_equal(file.exists("data-raw"), TRUE)
   expect_equal(file.exists("global"), TRUE)
   expect_equal(file.exists("server"), TRUE)

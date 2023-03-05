@@ -1,0 +1,3 @@
+    label("{label}"),
+    fluidRow_2cols_toggle_B({ui_func}, "{output_name}"),
+
