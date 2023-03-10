@@ -1,6 +1,0 @@
-# {output_name}
-lapply(groups, function(x) {{
-  output[[glue("{output_name}_{{x}}")]] <- {render_func}({{
-    {output_func}({args})
-  }})
-}})

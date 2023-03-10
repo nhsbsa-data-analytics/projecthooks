@@ -51,6 +51,7 @@ ui <- function(app_title) {{
     title = app_title,
     tags$head(
       tags$link(rel = "stylesheet", href = "style.css"),
+      tags$link(rel = "stylesheet", href = "fonts.css"),
       tags$link(
         rel = "stylesheet",
         href = "https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css"
@@ -94,7 +95,7 @@ ui <- function(app_title) {{
       tags$script(type = "text/javascript", src = "https://unpkg.com/@popperjs/core@2"),
       tags$script(type = "text/javascript", src = "https://unpkg.com/tippy.js@6"),
       tags$script(
-        "tippy.setDefaultProps({theme: 'nhs-blue', allowHTML: true, zIndex: 100000});"
+        "tippy.setDefaultProps({{theme: 'nhs-blue', allowHTML: true, zIndex: 100000}});"
       )
     ),
     div(style = 'min-height: 100vh',
@@ -124,43 +125,24 @@ server <- function(input, output, session) {{
   ### Each has a monthly and 3 month rolling (TMR) version
   groups <- list("A", "B")
 
-  filter_data <- function (.data, .regions, three_month_rolling = FALSE) {{
+  filter_data <- function (.data, .regions, month_col, region_col,
+                           three_month_rolling = FALSE) {{
     minus_months <- months(0)
     if (three_month_rolling) minus_months <- months(2)
 
     .data %>%
       filter(
         between(
-          first_of_month,
+          !!sym(month_col),
           input$month_range[1] %m-% minus_months,
           input$month_range[2]
         ),
-        region %in% .regions
+        !!sym(region_col) %in% .regions
       )
   }}
 
-  filtered_data <- reactiveValues(
-    A     = NULL,
-    B     = NULL,
-    TMR_A = NULL,
-    TMR_B = NULL
-  )
-
-  observeEvent({{
-    regions_saved_A()
-    input$month_range
-  }}, {{
-    filtered_data$A     = filter_data(data, regions_saved_A())
-    filtered_data$TMR_A = filter_data(data, regions_saved_A(), TRUE)
-  }})
-
-  observeEvent({{
-    regions_saved_B()
-    input$month_range
-  }}, {{
-    filtered_data$B     = filter_data(data, regions_saved_B())
-    filtered_data$TMR_B = filter_data(data, regions_saved_B(), TRUE)
-  }})
+  ### Reactive data under here
+  ### Reactive data above
 
 
 # Source outputs ----------------------------------------------------------

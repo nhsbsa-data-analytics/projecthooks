@@ -13,7 +13,3 @@ nes_responses <- c(
   "Very easy"                  = "Very easy",
   "Extremely easy"             = "Extremely easy"
 )
-
-{levels}
-
-regions <- names(region_responses)

@@ -1,0 +1,6 @@
+output${data_prefix}_survey_download <- downloadHandler(
+  filename = "{survey_doc}",
+  content = function(file) {{
+    file.copy("www/{survey_doc}", file)
+  }}
+)
