@@ -1,4 +1,0 @@
-    label("{label}"),
-    aspect_radio_select("{radio_select_id}", {radio_select_choices}),
-    fluidRow_2cols_toggle_B({ui_func}, "{output_name}"),
-

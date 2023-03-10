@@ -1,9 +1,13 @@
 property,value
 app_type,mi_dash
+data_file,
 app_title,
 main_title,
 subtitle,
 ignore_top_rows,1
+month_col,
+region_col,
+survey_doc,
 page_1,
 page_2,
 page_3,

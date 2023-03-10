@@ -1,66 +1,73 @@
 ### Month range controls ###
 
-month_range_gte_3 <- reactive({
+month_range_gte_3 <- reactive({{
   if (month_diff(input$month_range) >= 3) TRUE else FALSE
-})
+}})
 
-past_3_months <- reactive({
+last_valid_month_range_selection <- reactiveVal(
+  c(
+    min(unique(data$first_of_month)),
+    max(unique(data$first_of_month))
+  )
+)
+
+past_3_months <- reactive({{
   seq(as.Date(input$month_range[2]), by = "-1 month", length = 3)
-})
+}})
 
-observeEvent(input$month_range, {
-  if (input$month_range[2] < input$month_range[1]) {
+observeEvent(input$month_range, {{
+  if (input$month_range[2] >= input$month_range[1]) {{
+    last_valid_month_range_selection(input$month_range)
+  }} else {{
     updateDateRangeInput(session, "month_range", start = input$month_range[2])
-  }
-})
+  }}
+}})
 
-observeEvent(input$all_months, {
+observeEvent(input$all_months, {{
   reset("month_range")
   showElement(selector = "#month_range > div > span")
   showElement(selector = "#month_range > div > input:nth-child(1)")
-})
+}})
 
-observeEvent(input$single_month, {
+observeEvent(input$single_month, {{
   updateDateRangeInput(session, "month_range", start = input$month_range[2])
   hideElement(selector = "#month_range > div > span")
   hideElement(selector = "#month_range > div > input:nth-child(1)")
-})
+}})
 
-observeEvent(input$range_months, {
+observeEvent(input$range_months, {{
   showElement(selector = "#month_range > div > span")
   showElement(selector = "#month_range > div > input:nth-child(1)")
-})
+}})
 
-observeEvent(month_range_gte_3(), {
-  if (month_range_gte_3()) {
+observeEvent(month_range_gte_3(), {{
+  if (month_range_gte_3()) {{
     hideElement(selector = "#nps_groups_hc")
     hideElement(selector = "#nps_groups_hc_TMR")
     showElement(selector = "#nps_groups_gg")
     showElement(selector = "#nps_groups_gg_TMR")
-  } else {
+  }} else{{
     hideElement(selector = "#nps_groups_gg")
     hideElement(selector = "#nps_groups_gg_TMR")
     showElement(selector = "#nps_groups_hc")
     showElement(selector = "#nps_groups_hc_TMR")
-  }
-})
+  }}
+}})
 
-output$month_range_text <- renderText({
+output$month_range_text <- renderText({{
   month_range_indicator(input$month_range)
-})
-
-
+}})
 
 ### Region selection controls ###
 
 # Track saved choices
-regions_saved_A <- reactiveVal(value = regions)
+regions_saved_A <- reactiveVal(value = {data_prefix}_regions)
 regions_saved_B <- reactiveVal(value = NULL)
 
 # Reset button rendering (only shown when there are differences to default)
-output$reset_regions_btn <- renderUI({
-  status <- ifelse(
-    identical(input$regions_cb_A, regions) &&
+output$reset_regions_btn <- renderUI({{
+  status <- ifelse (
+    identical(input$regions_cb_A, {data_prefix}_regions) &&
       identical(input$regions_cb_B, NULL),
     "light", "success"
   )
@@ -70,26 +77,25 @@ output$reset_regions_btn <- renderUI({
     label = "Reset",
     class = paste0("btn btn-", status)
   )
-})
+}})
 
 # Functionality of reset button
 observeEvent(
-  input$reset_regions,
-  {
-    updatePrettyCheckboxGroup(session, "regions_cb_A", selected = regions)
+  input$reset_regions, {{
+    updatePrettyCheckboxGroup(session, "regions_cb_A", selected = {data_prefix}_regions)
     updatePrettyCheckboxGroup(session, "regions_cb_B", selected = character(0))
 
-    addClass(selector = "#regions_cb_A i", class = "fa-check")
-    removeClass(selector = "#regions_cb_A i", class = "fa-times")
+    addClass(   selector = "#regions_cb_A i", class = "fa-check")
+    removeClass(selector = "#regions_cb_A i", class = "fa-xmark")
     removeClass(selector = "#regions_cb_B i", class = "fa-check")
-    addClass(selector = "#regions_cb_B i", class = "fa-times")
-  }
+    addClass(   selector = "#regions_cb_B i", class = "fa-xmark")
+  }}
 )
 
 # Save button rendering. Since the button is destroyed and recreated whenever a
 # checkbox is clicked, the script needs to be run so the event observer is bound
 # to the new button.
-output$save_regions_btn <- renderUI({
+output$save_regions_btn <- renderUI({{
   status <- ifelse(
     identical(input$regions_cb_A, regions_saved_A()) &&
       identical(input$regions_cb_B, regions_saved_B()),
@@ -103,16 +109,20 @@ output$save_regions_btn <- renderUI({
       class = paste0("btn btn-", status)
     ),
     tags$script(HTML("
-      $('#save_regions').click(function () {
+      $('#save_regions').click(function () {{
         var regions_saved_A = [];
-        $.each($('#regions_cb_A input:checkbox:checked'), function(){
+        $.each($('#regions_cb_A input:checkbox:checked'), function(){{
           regions_saved_A.push($(this).val());
-        });
+        }});
+
+        Shiny.setInputValue('region_info_A', regions_saved_A)
 
         var regions_saved_B = [];
-        $.each($('#regions_cb_B input:checkbox:checked'), function(){
+        $.each($('#regions_cb_B input:checkbox:checked'), function(){{
           regions_saved_B.push($(this).val());
-        });
+        }});
+
+        Shiny.setInputValue('region_info_B', regions_saved_B)
 
         tippy_regions_A.setContent(
           'Selected regions in group A:<br>' + regions_saved_A.join('<br>')
@@ -121,37 +131,45 @@ output$save_regions_btn <- renderUI({
         tippy_regions_B.setContent(
           'Selected regions in group B:<br>' + regions_saved_B.join('<br>')
         );
-      });
+      }});
     "))
   )
-})
+}})
 
 # Update groupA and groupB classes according to whether the B column should be shown.
-update_A_B_columns <- function(x) {
-  if (x == 0) {
+update_A_B_columns <- function(x) {{
+  if (x == 0) {{
     removeClass(selector = ".groupA", class = "col-sm-6")
-    addClass(selector = ".groupA", class = "col-sm-12")
+    addClass(   selector = ".groupA", class = "col-sm-12")
     removeClass(selector = ".groupB", class = "col-sm-6")
-    addClass(selector = ".groupB", class = "hidden")
+    addClass(   selector = ".groupB", class = "hidden")
+    removeClass(selector = "#region_info_L", class = "col-sm-6")
+    addClass(   selector = "#region_info_L", class = "col-sm-12")
+    removeClass(selector = "#region_info_R", class = "col-sm-6")
+    addClass(   selector = "#region_info_R", class = "hidden")
     runjs("$(window).trigger('resize')")
-  } else {
+  }} else {{
     removeClass(selector = ".groupA", class = "col-sm-12")
-    addClass(selector = ".groupA", class = "col-sm-6")
+    addClass(   selector = ".groupA", class = "col-sm-6")
     removeClass(selector = ".groupB", class = "hidden")
-    addClass(selector = ".groupB", class = "col-sm-6")
+    addClass(   selector = ".groupB", class = "col-sm-6")
     showElement(selector = ".groupB")
-  }
-}
+    removeClass(selector = "#region_info_L", class = "col-sm-12")
+    addClass(   selector = "#region_info_L", class = "col-sm-6")
+    removeClass(selector = "#region_info_R", class = "hidden")
+    addClass(   selector = "#region_info_R", class = "col-sm-6")
+    showElement(selector = "#region_info_R")
+  }}
+}}
 
 # Functionality of save button
 observeEvent(
-  input$save_regions,
-  {
+  input$save_regions, {{
     regions_saved_A(input$regions_cb_A)
     regions_saved_B(input$regions_cb_B)
 
     update_A_B_columns(length(regions_saved_B()))
-  },
+  }},
   ignoreInit = TRUE,
   ignoreNULL = FALSE
 )
@@ -163,25 +181,25 @@ observeEvent(
 # the server.
 runjs("
   let mRegionDropmenu = document.getElementById('region_dropmenu_dropmenu'),
-  options = {
+  options = {{
     childList: true
-  },
+  }},
 
   observer = new MutationObserver(mCallback);
 
-  function mCallback (mutations) {
-    if ($('#tippy-5').is(':visible')) {
+  function mCallback (mutations) {{
+    if ($('#tippy-5').is(':visible')) {{
       Shiny.setInputValue('regions_dropmenu_has_closed', false)
-    } else {
+    }} else {{
       Shiny.setInputValue('regions_dropmenu_has_closed', true)
-    }
-  }
+    }}
+  }}
 
   observer.observe(mRegionDropmenu, options);
 ")
 
-observeEvent(input$regions_dropmenu_has_closed, {
-  if (input$regions_dropmenu_has_closed) {
+observeEvent(input$regions_dropmenu_has_closed, {{
+  if (input$regions_dropmenu_has_closed) {{
     regions_saved_A(input$regions_cb_A)
     regions_saved_B(input$regions_cb_B)
 
@@ -189,30 +207,50 @@ observeEvent(input$regions_dropmenu_has_closed, {
 
     runjs("
       var regions_saved_A = [];
-      $.each($('#regions_cb_A input:checkbox:checked'), function(){
+      $.each($('#regions_cb_A input:checkbox:checked'), function(){{
         regions_saved_A.push($(this).val());
-      });
+      }});
+
+      Shiny.setInputValue('region_info_A', regions_saved_A)
 
       var regions_saved_B = [];
-      $.each($('#regions_cb_B input:checkbox:checked'), function(){
+      $.each($('#regions_cb_B input:checkbox:checked'), function(){{
         regions_saved_B.push($(this).val());
-      });
+      }});
+
+      Shiny.setInputValue('region_info_B', regions_saved_B)
 
       tippy_regions_A.setContent(
-        'Selected regions in group A:<br>' + regions_saved_A.join('<br>')
+        'Selected regions in left group:<br>' + regions_saved_A.join('<br>')
       );
 
       tippy_regions_B.setContent(
-        'Selected regions in group B:<br>' + regions_saved_B.join('<br>')
+        'Selected regions in right group:<br>' + regions_saved_B.join('<br>')
       );
 
       tippy_regions_A.enable();
       tippy_regions_B.enable();
     ")
-  } else {
+  }} else {{
     runjs("
       tippy_regions_A.disable();
       tippy_regions_B.disable();
     ")
-  }
-})
+  }}
+}})
+
+output$region_info_L <- renderText({{
+  glue_collapse(input$region_info_A, sep = ", ")
+}})
+
+output$region_info_R <- renderText({{
+  glue_collapse(input$region_info_B, sep = ", ")
+}})
+
+output$page_title <- renderUI({{
+  if (is.null(input$page_title)) h1(style = "margin: 0", "{page_1}")
+  else h1(style = "margin: 0", input$page_title)
+}})
+
+### Survey download output below
+### Survey download output above

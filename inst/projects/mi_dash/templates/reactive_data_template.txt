@@ -1,0 +1,22 @@
+  filtered_{data_prefix}_data <- reactiveValues(
+    A = NULL,
+    B = NULL
+  )
+
+  observeEvent({{
+    regions_saved_A()
+    input$month_range
+  }}, {{
+    filtered_{data_prefix}_data$A = filter_data(
+      {data_prefix}, regions_saved_A(), "{month_col}", "{region_col}"
+    )
+  }})
+
+  observeEvent({{
+    regions_saved_B()
+    input$month_range
+  }}, {{
+    filtered_{data_prefix}_data$B = filter_data(
+      {data_prefix}, regions_saved_B(), "{month_col}", "{region_col}"
+    )
+  }})
