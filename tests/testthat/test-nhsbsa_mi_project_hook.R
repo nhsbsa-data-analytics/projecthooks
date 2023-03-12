@@ -20,7 +20,10 @@ test_that("nhsbsa_mi_project_hook works", {
   expect_equal(file.exists("R"), FALSE)
   expect_equal(file.exists(".Rbuildignore"), FALSE)
   expect_equal(file.exists(".gitignore"), FALSE)
-  expect_equal(file.exists("DESCRIPTION"), FALSE)
+  # Temporarily do not delete DESCRIPTION due to error when trying to set the
+  # active project. May need to handle this by customising the create_golem and/or
+  # create_package functions :(
+  # expect_equal(file.exists("DESCRIPTION"), FALSE)
   expect_equal(file.exists("NAMESPACE"), FALSE)
   expect_equal(file.exists("make_dashboard.R"), TRUE)
   expect_equal(file.exists("data"), TRUE)

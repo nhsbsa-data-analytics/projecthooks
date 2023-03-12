@@ -24,7 +24,10 @@ nhsbsa_mi_project_hook <- function(path, package_name, ...) {
   fs::file_delete(".Rbuildignore")
   fs::file_delete(".gitignore")
   fs::file_delete("NAMESPACE")
-  fs::file_delete("DESCRIPTION")
+  # Temporarily do not delete DESCRIPTION due to error when trying to set the
+  # active project. May need to handle this by customising the create_golem and/or
+  # create_package functions :(
+  # fs::file_delete("DESCRIPTION") # Exclude Linting
 
   fs::dir_create("data")
   fs::dir_create("ui")
