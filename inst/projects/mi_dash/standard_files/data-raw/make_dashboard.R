@@ -8,7 +8,7 @@ library(skimr)
 library(fs)
 library(rlang)
 library(mi.r.utils)
-library(projecthooks)
+library(tools)
 
 
 open <- FALSE
@@ -67,26 +67,78 @@ trans <- function(x, y) {
 }
 
 # Read in metadata --------------------------------------------------------
-app_meta <- read.csv("data/app_meta.csv") %>%
+app_meta <- read.csv("data-raw/app_meta.csv") %>%
   as_tibble()
 
 data_meta <- read_csv(
-  "data/data_meta.csv",
-  col_types = cols(use = col_logical(), .default = col_character())
+  "data-raw/data_meta.csv",
+  col_types = cols(
+    use = col_logical(),
+    arg4 = col_logical(),
+    .default = col_character()
+  )
 ) %>%
   as_tibble()
 
 # Process metadata --------------------------------------------------------
-ignore_top_rows <- app_meta %>% pull_value("ignore_top_rows")
 app_type <- app_meta %>% pull_value("app_type")
+data_file <- app_meta %>% pull_value("data_file")
+data_prefix <- file_path_sans_ext(data_file)
 app_title <- app_meta %>% pull_value("app_title")
 main_title <- app_meta %>% pull_value("main_title")
 subtitle <- app_meta %>% pull_value("subtitle")
+month_col <- app_meta %>% pull_value("month_col")
+month_col <- glue("{data_prefix}_{month_col}")
+region_col <- app_meta %>% pull_value("region_col")
+region_col <- glue("{data_prefix}_{region_col}")
+survey_doc <- app_meta %>% pull_value("survey_doc")
+ignore_top_rows <- app_meta %>% pull_value("ignore_top_rows")
+page_1 <- app_meta %>% pull_value("page_1")
+
 
 data_meta <- data_meta %>%
   filter(use) %>%
   mutate(datafield = gsub(":", "\\.", datafield)) %>%
   mutate(rename_to = if_else(is.na(rename_to), datafield, rename_to)) %>%
+  mutate(
+    rename_to = glue("{data_prefix}_{rename_to}"),
+    output_name = if_else(
+      !is.na(output_name),
+      glue("{data_prefix}_{output_name}"),
+      output_name
+    ),
+    arg1 = if_else(
+      !is.na(output_name) & is.na(arg1),
+      glue("filtered_{data_prefix}_data[[x]]"),
+      arg1
+    ),
+    arg2 = if_else(
+      !is.na(output_name) & is.na(arg2),
+      glue("\"{output_name}\""),
+      arg2
+    ),
+    arg3 = if_else(
+      output_func %in% c(
+        "line_chart", "group_table", "horizontal_bar", "stacked_vertical"
+      ),
+      glue("\"{month_col}\""),
+      arg3
+    ),
+    arg4 = case_when(
+      output_func == "group_table" & arg4 ~ glue("input${output_name}_group"),
+      output_func == "stacked_vertical" & arg4 ~ glue("input${output_name}_radio"),
+    ),
+    arg5 = if_else(
+      output_func %in% c("line_chart", "stacked_horizontal"),
+      "last_valid_month_range_selection()",
+      arg5
+    ),
+    arg6 = if_else(
+      output_func %in% c("line_chart", "group_table"),
+      glue("\"{data_prefix}\""),
+      arg6
+    )
+  ) %>%
   mutate(
     label_set = !is.na(label),
     label = if_else(
@@ -133,14 +185,27 @@ needs_transform <- data_meta %>%
   select(rename_to, transform_to)
 
 # Read and process data ---------------------------------------------------
-data <- read.csv("data/csat.csv") %>%
+data <- read.csv(glue("data-raw/{data_file}")) %>%
+  filter(ID.completed == "completed") %>%
   as_tibble() %>%
-  slice(-(1:ignore_top_rows)) %>%
+  {
+    if (ignore_top_rows == 0L) {
+      .
+    } else {
+      slice(., -(1:ignore_top_rows))
+    }
+  } %>%
   select(all_of(data_meta$datafield)) %>%
   rename_with(~ data_meta$rename_to) %>%
   mutate(across(needs_transform$rename_to, ~ trans(.x, cur_column()))) %>%
   ### Put any custom data processing below
-
+  mutate(
+    csat_visited_web_page = if_else(
+      csat_visited_web_page %in% c("No", "Yes"),
+      csat_visited_web_page,
+      ""
+    )
+  ) %>%
   ### Put any custom data processing above
   encode_char_cols("latin1") %>%
   filter_text(
@@ -149,10 +214,10 @@ data <- read.csv("data/csat.csv") %>%
     ends_with("comment")
   )
 
-data %>% saveRDS("data/data.rds")
+data %>% saveRDS(glue("data/{data_prefix}.rds"))
 
 # Read and process targets ------------------------------------------------
-targets <- "data/targets.csv"
+targets <- "data-raw/targets.csv"
 
 if (file.exists(targets)) {
   read_csv(
@@ -171,37 +236,49 @@ if (file.exists(targets)) {
 levels_meta <- data_meta %>%
   filter(startsWith(transform_to, "tidy_levels"))
 
-try(
-  add_levels(
-    app_type,
-    data %>% select(levels_meta %>% pull(rename_to)),
-    levels_meta, global_backup_dir,
-    overwrite = overwrite, open = open
+if (nrow(levels_meta) > 0) {
+  try(
+    add_levels(
+      app_type,
+      data_prefix,
+      data %>% select(levels_meta %>% pull(rename_to)),
+      levels_meta, global_backup_dir,
+      overwrite = overwrite, open = open
+    )
   )
-)
+}
 
 ## Create aspect radio choices --------------------------------------------
 choices_meta <- data_meta %>%
   filter(
     output_func == "stacked_vertical" &
-      nchar(arg8) > 0
+      nchar(arg4) > 0
   ) %>%
   select(rename_to, output_name)
 
+if (nrow(choices_meta) > 0) {
+  try(
+    add_choices(
+      choices_meta, global_backup_dir,
+      overwrite = overwrite, open = open
+    )
+  )
+}
+
+## Create app.R -----------------------------------------------------------
 try(
-  add_choices(
-    choices_meta, global_backup_dir,
+  create_app_r(
+    app_type, app_title, data_prefix, month_col, region_col,
+    backup_dir,
     overwrite = overwrite, open = open
   )
 )
 
-## Create app.R -----------------------------------------------------------
-try(create_app_r(app_type, app_title, backup_dir, overwrite = overwrite, open = open))
-
 ## Create ui.R ------------------------------------------------------------
 try(
   create_ui_r(
-    app_type, main_title, subtitle, ui_backup_dir,
+    app_type, data_prefix, month_col, region_col,
+    main_title, subtitle, ui_backup_dir,
     overwrite = overwrite, open = open
   )
 )
@@ -220,8 +297,10 @@ try({
     backup_dirs = c(pages_backup_dir, server_backup_dir),
     overwrite = overwrite, open = open
   )
+})
 
-  ## Create outputs ---------------------------------------------------------
+## Create outputs ---------------------------------------------------------
+try({
   output_meta <- unique(
     data_meta %>%
       select(page, output_name, output_type, output_func, starts_with("arg"))
@@ -234,72 +313,70 @@ try({
         "{substr(output_type, 2, nchar(output_type))}"
       ),
       output_type = NULL,
-      arg3 = case_when(
-        output_func == "group_table" &
-          nchar(arg3) > 0 ~ glue("input${output_name}_group"),
+      arg6 = if_else(
         output_func %in% c(
-          "stacked_horizontal", "pie"
-        ) ~ glue("{output_name}_responses"),
-        TRUE ~ arg3
-      ),
-      arg4 = case_when(
-        output_func %in% c(
-          "stacked_vertical", "horizontal_bar"
-        ) ~ glue("{output_name}_responses"),
-        TRUE ~ arg4
-      ),
-      arg8 = case_when(
-        output_func == "stacked_vertical" &
-          nchar(arg8) > 0 ~ glue("input${output_name}_radio"),
-        TRUE ~ arg8
+          "stacked_vertical",
+          "stacked_horizontal",
+          "pie",
+          "horizontal_bar"
+        ) & is.na(arg6),
+        glue("{output_name}_responses"),
+        arg6
       )
     ) %>%
     unite(args, starts_with("arg"), sep = ", ") %>%
     mutate(app_type = app_type)
 
   pwalk(output_meta, add_output)
+})
 
-  ## Create ui elements------------------------------------------------------
+## Create ui elements------------------------------------------------------
+try({
   ui_meta <- unique(
     data_meta %>%
-      select(page, section, label, output_type, output_name, output_func, arg3, arg8)
+      select(page, section, label, output_type, output_name, output_func, arg4)
   ) %>%
     filter(nchar(page) > 0) %>%
     mutate(
-      ui_func = case_when(
-        tolower(output_type) == "custom" ~ glue("CUSTOM_OUTPUT"),
-        TRUE ~ glue("{output_type}Output")
+      ui_func = if_else(
+        tolower(output_type) == "custom",
+        glue("CUSTOM_OUTPUT"),
+        glue("{output_type}Output")
       ),
-      output_type = NULL
-    ) %>%
-    mutate(
+      output_type = NULL,
       use_comment_group = case_when(
-        output_func == "group_table" &
-          nchar(arg3) > 0 ~ TRUE,
+        output_func == "group_table" & nchar(arg4) ~ TRUE,
         TRUE ~ FALSE
-      )
-    ) %>%
-    mutate(
+      ),
       use_aspect_radio = case_when(
-        output_func == "stacked_vertical" &
-          nchar(arg8) > 0 ~ TRUE,
+        output_func == "stacked_vertical" & nchar(arg4) ~ TRUE,
         TRUE ~ FALSE
-      )
+      ),
+      output_func = NULL,
+      arg4 = NULL
     ) %>%
     group_by(page, section) %>%
     mutate(
       element_num = row_number(),
-      section_num = if_else(element_num == 1, 1, 0)
+      section_num = if_else(element_num == 1, 1, 0),
+      element_num = NULL
     ) %>%
     group_by(page) %>%
     mutate(section_num = cumsum(section_num)) %>%
     ungroup() %>%
-    select(-element_num) %>%
-    mutate(app_type = app_type) %>%
-    select(-c(output_func, arg3, arg8))
+    mutate(app_type = app_type)
 
   pwalk(ui_meta, add_ui)
 })
 
+## Create ui outputs-----------------------------------------------------
+try({
+  create_ui_outputs_r(
+    app_type, data_prefix, page_1, survey_doc,
+    server_backup_dir,
+    overwrite = overwrite, open = open
+  )
+})
+
 # Data summary ------------------------------------------------------------
-data_summary <- summarise_data(data, data_meta)
+# data_summary <- summarise_data(data, data_meta)
