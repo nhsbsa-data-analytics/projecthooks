@@ -6,8 +6,8 @@ month_range_gte_3 <- reactive({{
 
 last_valid_month_range_selection <- reactiveVal(
   c(
-    min(unique(data$first_of_month)),
-    max(unique(data$first_of_month))
+    min(unique({data_prefix}${month_col})),
+    max(unique({data_prefix}${month_col}))
   )
 )
 
