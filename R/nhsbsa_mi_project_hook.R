@@ -30,6 +30,7 @@ nhsbsa_mi_project_hook <- function(path, package_name, ...) {
   # fs::file_delete("DESCRIPTION") # Exclude Linting
 
   fs::dir_create("data")
+  fs::dir_create("server")
   fs::dir_create("ui")
 
   # Copy standard files into new project folder

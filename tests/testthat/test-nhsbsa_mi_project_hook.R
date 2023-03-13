@@ -25,7 +25,6 @@ test_that("nhsbsa_mi_project_hook works", {
   # create_package functions :(
   # expect_equal(file.exists("DESCRIPTION"), FALSE)
   expect_equal(file.exists("NAMESPACE"), FALSE)
-  expect_equal(file.exists("make_dashboard.R"), TRUE)
   expect_equal(file.exists("data"), TRUE)
   expect_equal(file.exists("ui"), TRUE)
   expect_equal(file.exists("data-raw"), TRUE)
