@@ -1,16 +1,21 @@
 
 # projecthooks
 
+_Project hooks to pass to `{golem}` to standardise and automate dashboard creation_
+
+`projecthooks` provides a way to create templates for `{shiny}` apps. This makes it easy to create apps in exactly the same way and automates almost all of the work in creating a new app.
+
 <!-- badges: start -->
-[![Codecov test coverage](https://codecov.io/gh/MarkMc1089/projecthooks/branch/master/graph/badge.svg)](https://app.codecov.io/gh/MarkMc1089/projecthooks?branch=master)
-[![R-CMD-check](https://github.com/MarkMc1089/projecthooks/workflows/R-CMD-check/badge.svg)](https://github.com/MarkMc1089/projecthooks/actions)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![R-CMD-check](https://github.com/nhsbsa-data-analytics/projecthooks/workflows/R-CMD-check/badge.svg)](https://github.com/nhsbsa-data-analytics/projecthooks/actions)
 <!-- badges: end -->
 
 The goal of projecthooks is to ...
 
 ## Installation
 
-You can install the development version of projecthooks from [GitHub](https://github.com/) with:
+You can install the development version of `{projecthooks}` from [GitHub](https://github.com/nhsbsa-data-analytics/projecthooks) with:
 
 ``` r
 # install.packages("devtools")
@@ -23,6 +28,5 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(projecthooks)
-## basic example code
+devpacker::create_shiny("my_new_app", git_only = T, project_hook = projecthooks::nhsbsa_mi_project_hook)
 ```
-
