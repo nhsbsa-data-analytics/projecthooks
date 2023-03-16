@@ -15,7 +15,7 @@ The goal of projecthooks is to ...
 
 ## Installation
 
-You can install the development version of `{projecthooks}` from [GitHub](https://github.com/nhsbsa-data-analytics/projecthooks) with:
+You can install the `{projecthooks}` from this repository with:
 
 ``` r
 # install.packages("devtools")
@@ -27,6 +27,5 @@ devtools::install_github("nhsbsa-data-analytics/projecthooks")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(projecthooks)
 devpacker::create_shiny("my_new_app", git_only = T, project_hook = projecthooks::nhsbsa_mi_project_hook)
 ```
