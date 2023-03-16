@@ -1,0 +1,8 @@
+        a(class = 'sideheader item', '{toupper(to_sentence_case(data_prefix))}', value = '.{data_prefix}.item'),
+        div(
+          class = '{data_prefix} item hidden',
+          div(
+            class = 'menu',
+            {nav_links}
+          )
+        ),

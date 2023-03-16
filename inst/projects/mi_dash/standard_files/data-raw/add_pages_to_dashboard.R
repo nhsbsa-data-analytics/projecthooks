@@ -11,6 +11,7 @@ library(mi.r.utils)
 library(tools)
 
 
+data_prefix <- ""
 open <- FALSE
 append <- TRUE
 overwrite <- TRUE
@@ -68,11 +69,11 @@ trans <- function(x, y) {
 }
 
 # Read in metadata --------------------------------------------------------
-app_meta <- read.csv("data-raw/bb_app_meta.csv") %>%
+app_meta <- read.csv(glue("data-raw/{data_prefix}_app_meta.csv")) %>%
   as_tibble()
 
 data_meta <- read_csv(
-  "data-raw/bb_data_meta.csv",
+  glue("data-raw/{data_prefix}_data_meta.csv"),
   col_types = cols(
     use = col_logical(),
     arg4 = col_logical(),
@@ -94,6 +95,8 @@ region_col <- app_meta %>% pull_value("region_col")
 region_col <- glue("{data_prefix}_{region_col}")
 survey_doc <- app_meta %>% pull_value("survey_doc")
 ignore_top_rows <- app_meta %>% pull_value("ignore_top_rows")
+accordion_menu <- app_meta %>% pull_value("accordion_menu")
+accordion_menu <- accordion_menu %>% as.logical()
 page_1 <- app_meta %>% pull_value("page_1")
 
 data_meta <- data_meta %>%
@@ -199,18 +202,6 @@ data <- read.csv(glue("data-raw/{data_file}")) %>%
   rename_with(~ data_meta$rename_to) %>%
   mutate(across(needs_transform$rename_to, ~ trans(.x, cur_column()))) %>%
   ### Put any custom data processing below
-  mutate(
-    bb_csat_disability_option_learning = case_when(
-      startsWith(bb_csat_disability_option_learning, "Learning") ~
-      "Learning or understanding or concentrating",
-      TRUE ~ bb_csat_disability_option_learning
-    ),
-    bb_csat_disability_option_social = case_when(
-      startsWith(bb_csat_disability_option_social, "Socially") ~
-      "Socially or behaviourally",
-      TRUE ~ bb_csat_disability_option_social
-    )
-  ) %>%
   ### Put any custom data processing above
   encode_char_cols("latin1") %>%
   filter_text(
@@ -239,7 +230,8 @@ if (file.exists(targets)) {
 
 ## Create response levels -------------------------------------------------
 levels_meta <- data_meta %>%
-  filter(startsWith(transform_to, "tidy_levels"))
+  filter(startsWith(transform_to, "tidy_levels")) %>%
+  mutate(arg7 = as.logical(arg7))
 
 if (nrow(levels_meta) > 0) {
   try(
@@ -285,6 +277,8 @@ pages <- app_meta %>%
 try({
   add_pages(
     app_type,
+    data_prefix,
+    accordion_menu,
     pages %>% pull(value),
     backup_dirs = c(pages_backup_dir, server_backup_dir),
     overwrite = overwrite, open = open
@@ -299,7 +293,7 @@ try({
   ) %>%
     filter(nchar(page) > 0) %>%
     mutate(
-      page = glue("{to_snake_case(page)}_outputs.R"),
+      page = glue("{data_prefix}_{to_snake_case(page)}_outputs.R"),
       render_func = glue(
         "render{toupper(substr(output_type, 1, 1))}",
         "{substr(output_type, 2, nchar(output_type))}"
@@ -330,6 +324,7 @@ try({
   ) %>%
     filter(nchar(page) > 0) %>%
     mutate(
+      page = glue("{data_prefix}_{(page)}"),
       ui_func = if_else(
         tolower(output_type) == "custom",
         glue("CUSTOM_OUTPUT"),
@@ -369,4 +364,4 @@ try({
 })
 
 # Data summary ------------------------------------------------------------
-# data_summary <- summarise_data(data, data_meta)
+data_summary <- summarise_data(data, data_meta)

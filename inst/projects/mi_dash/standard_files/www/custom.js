@@ -5,19 +5,6 @@ $(function() {
     $('.ui.accordion').accordion();
   });
 
-  $(document).on('shiny:visualchange', function(event) {
-    var obj = event['binding']['el']
-
-    if ($(obj).children('thead').length > 0) {
-      if(init_tables[$(obj).attr('id')][1] == 0){
-        $('#' + $(obj).attr('id')).DataTable({
-          "order": [[init_tables[$(obj).attr('id')][0] , "desc" ]]
-        });
-        init_tables[$(obj).attr('id')][1] = 1;
-      }
-    }
-  });
-
   $(document).on('click', '.navigation.item', function() {
     var page = $(this).attr('data-value');
 
@@ -42,18 +29,22 @@ $(function() {
   });
 
   $(document).on('click', '.sideheader', function() {
-    var tar = $(this).attr('value');
+    var page_group = $(this).attr('value');
 
     $('.item.visible')
       .removeClass('visible')
       .removeClass('transition')
-      .addClass('hidden').css('display', '');
+      .addClass('hidden')
+      .css('display', '');
 
-    $(tar).transition('fade down');
+    $(page_group).transition('fade down');
   });
 
   $(document).on('click', '.homeitem', function() {
-    $('.item.visible')
+    var page_group = $(this).parent().parent().prev().attr('value');
+
+    $('.sideheader.item:not(a[value="' + page_group + '"])')
+      .next()
       .removeClass('visible')
       .removeClass('transition')
       .addClass('hidden')
