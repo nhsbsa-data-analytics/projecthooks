@@ -54,4 +54,9 @@ $(function() {
   $(window).scroll(function() {
     $(window).trigger('resize');
   });
+
+  $(document).on('shiny:visualchange', function(event) {
+    var height = $(window).height() - 320;
+    $('.dataTables_scrollBody').height(height);
+  });
 });
