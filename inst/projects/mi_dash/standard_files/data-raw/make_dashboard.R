@@ -36,7 +36,8 @@ regexes <- list(
   reasons_for_rating = ".*reason((\\(s\\))|s)? for your rating.*",
   other_cues = "^(other|please type in)",
   option_other = " option other",
-  option_col = "_option_"
+  option_col = "_option_",
+  dkcr = "Don't know/can't remember"
 )
 
 # Transformations ---------------------------------------------------------
@@ -48,23 +49,20 @@ transforms <- list(
     as.integer(gsub("[^[:digit:]]", "", x))
   },
   tidy_levels = function(x) {
-    lvls <- trimws(gsub(regexes$final_brackets, "", x, perl = TRUE))
+    lvls <- trimws(
+      gsub(glue("{regexes$final_brackets}|{regexes$dkcr}"), "", x, perl = TRUE)
+    )
     lvls <- if_else(startsWith(lvls, "Prefer") | lvls == "", "Undisclosed", lvls)
     replace_na(lvls, "Undisclosed")
   },
   tidy_levels_keep_blanks = function(x) {
-    lvls <- trimws(gsub(regexes$final_brackets, "", x, perl = TRUE))
+    lvls <- trimws(
+      gsub(glue("{regexes$final_brackets}|{regexes$dkcr}"), "", x, perl = TRUE)
+    )
     lvls <- if_else(startsWith(lvls, "Prefer"), "Undisclosed", lvls)
     replace_na(lvls, "Undisclosed")
   }
 )
-
-trans <- function(x, y) {
-  fn_name <- data_meta %>%
-    filter(rename_to == y) %>%
-    pull(transform_to)
-  transforms[[fn_name]](x)
-}
 
 # Read in metadata --------------------------------------------------------
 app_meta <- read.csv("data-raw/app_meta.csv") %>%
