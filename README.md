@@ -27,5 +27,5 @@ devtools::install_github("nhsbsa-data-analytics/projecthooks")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-devpacker::create_shiny("my_new_app", git_only = T, project_hook = projecthooks::nhsbsa_mi_project_hook)
+devpacker::create_shiny("my_new_app", git_only = T, project_hook = projecthooks::mi_dash)
 ```

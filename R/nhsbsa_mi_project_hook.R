@@ -15,7 +15,7 @@
 #' @import withr
 #'
 #' @export
-nhsbsa_mi_project_hook <- function(path, package_name, ...) {
+mi_dash <- function(path, package_name, ...) {
   # Delete all files except .Rproj
   fs::dir_delete("dev")
   fs::dir_delete("inst")

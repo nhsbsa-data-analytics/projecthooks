@@ -1,4 +1,4 @@
-test_that("nhsbsa_mi_project_hook works", {
+test_that("mi_dash works", {
   tmpdir <- tempdir()
   path <- fs::dir_create(tmpdir, "testdir")
   withr::local_dir(path)
@@ -12,7 +12,7 @@ test_that("nhsbsa_mi_project_hook works", {
   fs::file_create("DESCRIPTION")
   fs::file_create("NAMESPACE")
 
-  nhsbsa_mi_project_hook(path = "", package_name = "")
+  mi_dash(path = "", package_name = "")
 
   expect_equal(file.exists("dev"), FALSE)
   expect_equal(file.exists("inst"), FALSE)
