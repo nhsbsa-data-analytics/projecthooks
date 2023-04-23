@@ -11,7 +11,7 @@ library(mi.r.utils)
 library(tools)
 
 
-data_prefix <- ""
+data_prefix <- "" # Make sure to set the prefix for the new dataset!
 open <- FALSE
 append <- TRUE
 overwrite <- TRUE
@@ -39,7 +39,7 @@ regexes <- list(
   other_cues = "^(other|please type in)",
   option_other = " option other",
   option_col = "_option_",
-  dkcr = "Don't know/can't remember"
+  dkcr = ".*do(\\s)?n(?(1)o|')t\\s(know|remember).*"
 )
 
 # Transformations ---------------------------------------------------------
@@ -52,14 +52,26 @@ transforms <- list(
   },
   tidy_levels = function(x) {
     lvls <- trimws(
-      gsub(glue("{regexes$final_brackets}|{regexes$dkcr}"), "", x, perl = TRUE)
+      gsub(
+        glue("{regexes$final_brackets}|{regexes$dkcr}"),
+        "",
+        x,
+        ignore.case = TRUE,
+        perl = TRUE
+      )
     )
     lvls <- if_else(startsWith(lvls, "Prefer") | lvls == "", "Undisclosed", lvls)
     replace_na(lvls, "Undisclosed")
   },
   tidy_levels_keep_blanks = function(x) {
     lvls <- trimws(
-      gsub(glue("{regexes$final_brackets}|{regexes$dkcr}"), "", x, perl = TRUE)
+      gsub(
+        glue("{regexes$final_brackets}|{regexes$dkcr}"),
+        "",
+        x,
+        ignore.case = TRUE,
+        perl = TRUE
+      )
     )
     lvls <- if_else(startsWith(lvls, "Prefer"), "Undisclosed", lvls)
     replace_na(lvls, "Undisclosed")
