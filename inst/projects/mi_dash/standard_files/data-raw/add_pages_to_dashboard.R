@@ -373,10 +373,16 @@ try({
   pwalk(ui_meta, add_ui)
 })
 
-## Create ui outputs-----------------------------------------------------
+## Add to ui outputs-------------------------------------------------------
 try({
   add_survey_doc_output(
     app_type, data_file, survey_doc
+  )
+})
+
+try({
+  add_data_context_output(
+    app_type, data_prefix, month_col
   )
 })
 

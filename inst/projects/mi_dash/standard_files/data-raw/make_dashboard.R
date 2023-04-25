@@ -381,7 +381,7 @@ try({
 ## Create ui outputs-----------------------------------------------------
 try({
   create_ui_outputs_r(
-    app_type, data_prefix, page_1, survey_doc,
+    app_type, data_prefix, month_col, page_1, survey_doc,
     server_backup_dir,
     overwrite = overwrite, open = open
   )
