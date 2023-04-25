@@ -1,0 +1,3 @@
+    if(startsWith(input$page_filename, {data_prefix})) {{
+      data_context({data_prefix})
+    }}

@@ -1,9 +1,94 @@
-### Month range controls ###
+# Data context ------------------------------------------------------------
 
+# Track which survey the current page is for - the data context
+data_context <- reactiveVal({data_prefix})
+
+# By default, the data context is the survey corresponding to the first page
+observeEvent(input$page_filename, {{
+  if (is.null(input$page_filename)) {{
+    data_context({data_prefix})
+  }}
+  # Whenever the context changes, set the data context accordingly
+  else {{
+    ### Data context switching below
+    ### Data context switching above
+  }}
+}})
+
+
+
+# Month range controls ----------------------------------------------------
+# Month range selection UI is dynamic, changing as the data context does.
+# This allows for having only the months available in the data for any page.
+
+# Track earliest  and latest month of current data
+min_month <- reactiveVal(
+  str2expression("{data_prefix}${data_prefix}_{month_col}") %>%
+    eval() %>%
+    min()
+)
+max_month <- reactiveVal(
+  str2expression("{data_prefix}${data_prefix}_{month_col}") %>%
+    eval() %>%
+    max()
+)
+
+# Whenever data context changes, update the min and max months
+observeEvent(data_context(), {{
+  min_month(
+    glue("{{data_context()}}${{data_context()}}_{month_col}") %>%
+      str2expression() %>%
+      eval() %>%
+      min()
+  )
+  max_month(
+    glue("{{data_context()}}${{data_context()}}_{month_col}") %>%
+      str2expression() %>%
+      eval() %>%
+      max()
+  )
+}})
+
+# Whenever the min or max month changes, recreate the month range UI
+output$month_range_ui <- renderUI({{
+  end <- max(unique(eval(str2expression(glue(
+    "{{data_context()}}${{data_context()}}_{month_col}"
+  )))))
+  min_month <- min(unique(eval(str2expression(glue(
+    "{{data_context()}}${{data_context()}}_{month_col}"
+  )))))
+  # Set default month range to earliest month of data, or 12 months ago,
+  # whichever is latest
+  start <- max(end %m-% months(12), min_month)
+
+  dateRangeMonthsInput(
+    "month_range",
+    start     = start,
+    end       = end,
+    min       = min_month,
+    max       = end,
+    startview = "year",
+    format    = "M yyyy",
+    separator = " - ",
+    init_hide = FALSE,
+    width     = "100%"
+  )
+}})
+
+# May not be used in all dashboards; this is just a reactive indicator of the
+# number of months in the currently selected range
 month_range_gte_3 <- reactive({{
   if (month_diff(input$month_range) >= 3) TRUE else FALSE
 }})
 
+# May not be used in all dashboards; this is just a reactive holding the last 3
+# months of the currently selected range
+past_3_months <- reactive({{
+  seq(as.Date(input$month_range[2]), by = "-1 month", length = 3)
+}})
+
+# This is used to guard against undesireable updates caused when selecting a
+# month range whose end month is earlier than its start month
 last_valid_month_range_selection <- reactiveVal(
   c(
     min(unique({data_prefix}${month_col})),
@@ -11,10 +96,8 @@ last_valid_month_range_selection <- reactiveVal(
   )
 )
 
-past_3_months <- reactive({{
-  seq(as.Date(input$month_range[2]), by = "-1 month", length = 3)
-}})
-
+# When an invalid month range is set, don't update last_valid_month_range_selection
+# Instead override the selection by setting the start month equal to the last month
 observeEvent(input$month_range, {{
   if (input$month_range[2] >= input$month_range[1]) {{
     last_valid_month_range_selection(input$month_range)
@@ -23,42 +106,130 @@ observeEvent(input$month_range, {{
   }}
 }})
 
+# All button displays all available months, and unhides the start month
+# selection and separator if hidden
+# When 'All' months selected
 observeEvent(input$all_months, {{
   reset("month_range")
   showElement(selector = "#month_range > div > span")
   showElement(selector = "#month_range > div > input:nth-child(1)")
 }})
 
+# Single button hides the start month drop down and the separator, and sets it
+# to same as current end month selection
 observeEvent(input$single_month, {{
   updateDateRangeInput(session, "month_range", start = input$month_range[2])
   hideElement(selector = "#month_range > div > span")
   hideElement(selector = "#month_range > div > input:nth-child(1)")
 }})
 
+# Range button only unhides the start month selection and separator if hidden
 observeEvent(input$range_months, {{
   showElement(selector = "#month_range > div > span")
   showElement(selector = "#month_range > div > input:nth-child(1)")
 }})
 
-observeEvent(month_range_gte_3(), {{
-  if (month_range_gte_3()) {{
-    hideElement(selector = "#nps_groups_hc")
-    hideElement(selector = "#nps_groups_hc_TMR")
-    showElement(selector = "#nps_groups_gg")
-    showElement(selector = "#nps_groups_gg_TMR")
-  }} else{{
-    hideElement(selector = "#nps_groups_gg")
-    hideElement(selector = "#nps_groups_gg_TMR")
-    showElement(selector = "#nps_groups_hc")
-    showElement(selector = "#nps_groups_hc_TMR")
-  }}
-}})
-
+# Whenever the month range selection changes, update the indicator text
 output$month_range_text <- renderText({{
   month_range_indicator(input$month_range)
 }})
 
-### Region selection controls ###
+
+
+# Region selection controls -----------------------------------------------
+
+observeEvent(data_context(), {
+    region_data <- eval(str2expression(glue(
+      "{{data_context()}}_regions"
+    )))
+
+    updateA11yPrettyCheckboxGroup(
+      session,
+      inputId = "regions_cb_A",
+      choiceNames = region_data,
+      choiceValues = region_data,
+      selected = region_data,
+      prettyOptions = list(
+        status = "success",
+        shape = "curve",
+        thick = TRUE,
+        animation = "smooth",
+        icon = icon("check")
+      )
+    )
+
+    updateA11yPrettyCheckboxGroup(
+      session,
+      inputId = "regions_cb_B",
+      choiceNames = rep("", length(region_data)),
+      choiceValues = region_data,
+      selected = character(0),
+      prettyOptions = list(
+        status = "success",
+        shape = "curve",
+        thick = TRUE,
+        animation = "smooth",
+        icon = icon("xmark")
+      )
+    )
+
+    addClass(   selector = "#regions_cb_A i", class = "fa-check")
+    removeClass(selector = "#regions_cb_A i", class = "fa-xmark")
+    removeClass(selector = "#regions_cb_B i", class = "fa-check")
+    addClass(   selector = "#regions_cb_B i", class = "fa-xmark")
+
+    regions_saved_A(region_data)
+    regions_saved_B(character(0))
+
+    update_A_B_columns(length(regions_saved_B()))
+
+    runjs("Shiny.setInputValue('data_context_changed', true);")
+  }},
+  ignoreInit = TRUE,
+  ignoreNULL = FALSE
+)
+
+observeEvent(input$data_context_changed, {{
+    runjs("
+      $('.pretty.p-icon input:checkbox').change(function () {{
+        if (this.checked) {{
+          $(this).next().children(':first').addClass('fa-check');
+          $(this).next().children(':first').removeClass('fa-xmark');
+        }}
+        else
+        {{
+          $(this).next().children(':first').removeClass('fa-check');
+          $(this).next().children(':first').addClass('fa-xmark');
+        }}
+      }});
+
+      var regions_saved_A = [];
+      $.each($('#regions_cb_A input:checkbox:checked'), function(){{
+        regions_saved_A.push($(this).val());
+      }});
+
+      Shiny.setInputValue('region_info_A', regions_saved_A);
+
+      var regions_saved_B = [];
+      $.each($('#regions_cb_B input:checkbox:checked'), function(){{
+        regions_saved_B.push($(this).val());
+      }});
+
+      Shiny.setInputValue('region_info_B', regions_saved_B);
+
+      tippy_regions_A.setContent(
+        'Selected regions in left group:<br>' + regions_saved_A.join('<br>')
+      );
+
+      tippy_regions_B.setContent(
+        'Selected regions in right group:<br>' + regions_saved_B.join('<br>')
+      );
+
+      Shiny.setInputValue('data_context_changed', null);
+    ")
+  }},
+  ignoreNULL = TRUE
+)
 
 # Track saved choices
 regions_saved_A <- reactiveVal(value = {data_prefix}_regions)
@@ -239,6 +410,10 @@ observeEvent(input$regions_dropmenu_has_closed, {{
   }}
 }})
 
+
+
+# Dynamic text ------------------------------------------------------------
+
 output$region_info_L <- renderText({{
   glue_collapse(input$region_info_A, sep = ", ")
 }})
@@ -251,6 +426,10 @@ output$page_title <- renderUI({{
   if (is.null(input$page_title)) h1(style = "margin: 0", "{page_1}")
   else h1(style = "margin: 0", input$page_title)
 }})
+
+
+
+# Survey download handlers ------------------------------------------------
 
 ### Survey download output below
 ### Survey download output above
