@@ -22,7 +22,6 @@ mi_dash <- function(path, package_name, ...) {
   fs::dir_delete("man")
   fs::dir_delete("R")
   fs::file_delete(".Rbuildignore")
-  # fs::file_delete(".gitignore")
   fs::file_delete("NAMESPACE")
   # Temporarily do not delete DESCRIPTION due to error when trying to set the
   # active project. May need to handle this by customising the create_golem and/or
@@ -40,6 +39,8 @@ mi_dash <- function(path, package_name, ...) {
       package = "projecthooks"
     ),
     ".",
-    overwrite = TRUE
+    overwrite = TRUE,
+    private = TRUE,
+    recursive = TRUE
   )
 }
