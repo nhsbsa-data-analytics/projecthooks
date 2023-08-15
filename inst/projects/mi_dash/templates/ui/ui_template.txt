@@ -145,18 +145,7 @@ ui_side <- tags$aside(
             )
           ),
         ),
-        dateRangeMonthsInput(
-          "month_range",
-          start  = min(unique({data_prefix}${month_col})),
-          end    = max(unique({data_prefix}${month_col})),
-          min    = min(unique({data_prefix}${month_col})),
-          max    = max(unique({data_prefix}${month_col})),
-          startview = "year",
-          format = "M yyyy",
-          separator = " - ",
-          init_hide = FALSE,
-          width = "100%"
-        ),
+        uiOutput("month_range_ui"),
         div(
           style = "margin-left: 5px; margin-right: 5px;",
           tags$label(

@@ -19,7 +19,7 @@ test_that("mi_dash works", {
   expect_equal(file.exists("man"), FALSE)
   expect_equal(file.exists("R"), FALSE)
   expect_equal(file.exists(".Rbuildignore"), FALSE)
-  expect_equal(file.exists(".gitignore"), FALSE)
+  expect_equal(file.exists(".gitignore"), TRUE)
   # Temporarily do not delete DESCRIPTION due to error when trying to set the
   # active project. May need to handle this by customising the create_golem and/or
   # create_package functions :(

@@ -24,7 +24,6 @@ library(rlang)
 library(tippy)
 
 ### Non-CRAN
-library(sigtest)
 library(mi.r.utils)
 
 
@@ -35,11 +34,12 @@ options(shiny.error = browser)
 
 
 # Source files ------------------------------------------------------------
-source("./global/index.R", local = TRUE)
-source("./global/colours.R", local = TRUE)
-source("./global/hcoptions.R", local = TRUE)
-source("./global/levels.R", local = TRUE)
-source("./global/choices.R", local = TRUE)
+list.files(
+  path = "./global",
+  full.names = TRUE,
+  pattern = "\\.R"
+) %>%
+  walk(source)
 source("./ui/ui.R", local = TRUE)
 
 
@@ -125,7 +125,7 @@ server <- function(input, output, session) {{
   ### Each has a monthly and 3 month rolling (TMR) version
   groups <- list("A", "B")
 
-  filter_data <- function (.data, .regions, month_col, region_col,
+  filter_data <- function(.data, .regions, month_col, region_col,
                            three_month_rolling = FALSE) {{
     minus_months <- months(0)
     if (three_month_rolling) minus_months <- months(2)

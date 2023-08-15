@@ -1,12 +1,12 @@
 # Data context ------------------------------------------------------------
 
 # Track which survey the current page is for - the data context
-data_context <- reactiveVal({data_prefix})
+data_context <- reactiveVal("{data_prefix}")
 
 # By default, the data context is the survey corresponding to the first page
 observeEvent(input$page_filename, {{
   if (is.null(input$page_filename)) {{
-    data_context({data_prefix})
+    data_context("{data_prefix}")
   }}
   # Whenever the context changes, set the data context accordingly
   else {{
@@ -22,16 +22,8 @@ observeEvent(input$page_filename, {{
 # This allows for having only the months available in the data for any page.
 
 # Track earliest  and latest month of current data
-min_month <- reactiveVal(
-  str2expression("{data_prefix}${data_prefix}_{month_col}") %>%
-    eval() %>%
-    min()
-)
-max_month <- reactiveVal(
-  str2expression("{data_prefix}${data_prefix}_{month_col}") %>%
-    eval() %>%
-    max()
-)
+min_month <- reactiveVal(min({data_prefix}${data_prefix}_{month_col}))
+max_month <- reactiveVal(max({data_prefix}${data_prefix}_{month_col}))
 
 # Whenever data context changes, update the min and max months
 observeEvent(data_context(), {{
@@ -61,7 +53,7 @@ output$month_range_ui <- renderUI({{
   # whichever is latest
   start <- max(end %m-% months(12), min_month)
 
-  dateRangeMonthsInput(
+  dateRangeInputWithViewMode(
     "month_range",
     start     = start,
     end       = end,
@@ -91,8 +83,8 @@ past_3_months <- reactive({{
 # month range whose end month is earlier than its start month
 last_valid_month_range_selection <- reactiveVal(
   c(
-    min(unique({data_prefix}${month_col})),
-    max(unique({data_prefix}${month_col}))
+    min({data_prefix}${data_prefix}_{month_col}),
+    max({data_prefix}${data_prefix}_{month_col})
   )
 )
 
@@ -138,7 +130,7 @@ output$month_range_text <- renderText({{
 
 # Region selection controls -----------------------------------------------
 
-observeEvent(data_context(), {
+observeEvent(data_context(), {{
     region_data <- eval(str2expression(glue(
       "{{data_context()}}_regions"
     )))

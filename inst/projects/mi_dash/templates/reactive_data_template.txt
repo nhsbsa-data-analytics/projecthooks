@@ -8,7 +8,7 @@
     input$month_range
   }}, {{
     filtered_{data_prefix}_data$A = filter_data(
-      {data_prefix}, regions_saved_A(), "{month_col}", "{region_col}"
+      {data_prefix}, regions_saved_A(), "{data_prefix}_{month_col}", "{data_prefix}_{region_col}"
     )
   }})
 
@@ -17,6 +17,6 @@
     input$month_range
   }}, {{
     filtered_{data_prefix}_data$B = filter_data(
-      {data_prefix}, regions_saved_B(), "{month_col}", "{region_col}"
+      {data_prefix}, regions_saved_B(), "{data_prefix}_{month_col}", "{data_prefix}_{region_col}"
     )
   }})

@@ -16,7 +16,7 @@ overwrite <- TRUE
 
 # Create backup folders ---------------------------------------------------
 backup_dir <- dir_create(
-  file.path("backup", str_replace_all(str_replace(now(), " ", "_"), ":", "."))
+  file.path("backup", str_replace_all(str_replace(now("UTC"), " ", "_"), ":", "."))
 )
 ui_backup_dir <- dir_create(file.path(backup_dir, "ui"))
 pages_backup_dir <- dir_create(file.path(ui_backup_dir, "pages"))
@@ -76,6 +76,13 @@ transforms <- list(
   }
 )
 
+trans <- function(x, y) {
+  fn_name <- data_meta %>%
+    filter(rename_to == y) %>%
+    pull(transform_to)
+  transforms[[fn_name]](x)
+}
+
 # Read in metadata --------------------------------------------------------
 app_meta <- read.csv("data-raw/app_meta.csv") %>%
   as_tibble()
@@ -98,9 +105,9 @@ app_title <- app_meta %>% pull_value("app_title")
 main_title <- app_meta %>% pull_value("main_title")
 subtitle <- app_meta %>% pull_value("subtitle")
 month_col <- app_meta %>% pull_value("month_col")
-month_col <- glue("{data_prefix}_{month_col}")
+# month_col <- glue("{data_prefix}_{month_col}")
 region_col <- app_meta %>% pull_value("region_col")
-region_col <- glue("{data_prefix}_{region_col}")
+# region_col <- glue("{data_prefix}_{region_col}")
 survey_doc <- app_meta %>% pull_value("survey_doc")
 ignore_top_rows <- app_meta %>% pull_value("ignore_top_rows")
 accordion_menu <- app_meta %>% pull_value("accordion_menu")
@@ -133,7 +140,7 @@ data_meta <- data_meta %>%
       output_func %in% c(
         "line_chart", "group_table", "horizontal_bar", "stacked_vertical"
       ),
-      glue("\"{month_col}\""),
+      glue("\"{data_prefix}_{month_col}\""),
       arg3
     ),
     arg4 = case_when(
